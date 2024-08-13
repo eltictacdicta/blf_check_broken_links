@@ -86,7 +86,7 @@ jQuery(document).ready(function($) {
     });
 
     $('#blf-clean-specific-post').on('click', function() {
-        var postId = $('#blf-post-id').val();
+        var postId = $('#blf-post-input').val();
         if (!postId) {
             $('#blf-specific-post-status').html('Por favor, ingrese un ID de post válido.');
             return;

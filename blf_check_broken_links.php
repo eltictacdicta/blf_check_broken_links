@@ -41,9 +41,29 @@ function blf_render_options_page() {
         <div id="blf-status"></div>
 
         <h2>Limpiar post específico</h2>
-        <input type="number" id="blf-post-id" placeholder="ID del post">
+        <select id="blf-type-selector">
+            <option value="url">URL del post</option>
+            <option value="id">ID del post</option>
+            
+        </select>
+        <input type="url" id="blf-post-input" placeholder="URL del post">
         <button id="blf-clean-specific-post" class="button">Limpiar Post</button>
         <div id="blf-specific-post-status"></div>
+
+        <script>
+            const typeSelector = document.getElementById('blf-type-selector');
+            const postInput = document.getElementById('blf-post-input');
+
+            typeSelector.addEventListener('change', function() {
+                if (typeSelector.value === 'id') {
+                    postInput.type = 'number';
+                    postInput.placeholder = 'ID del post';
+                } else {
+                    postInput.type = 'url';
+                    postInput.placeholder = 'URL del post';
+                }
+            });
+        </script>
     </div>
     <?php
 }
@@ -83,7 +103,18 @@ function blf_start_cleaning() {
 }
 add_action('wp_ajax_blf_start_cleaning', 'blf_start_cleaning');
 
-function blf_check_broken_links($post_id = null, $internal_only = false) {
+function blf_check_broken_links($post_identifier = null, $internal_only = false) {
+    // Verificar si $post_identifier es una URL o un post ID
+    if ($post_identifier && !is_numeric($post_identifier)) {
+        $post_id = blf_get_post_id_from_url($post_identifier);
+        if (!$post_id) {
+            error_log("No se encontró un post con la URL proporcionada: " . $post_identifier);
+            return null;
+        }
+    } else {
+        $post_id = $post_identifier;
+    }
+
     error_log("Iniciando blf_check_broken_links para post ID: " . $post_id);
 
     $args = array(
@@ -201,6 +232,22 @@ function blf_check_broken_links($post_id = null, $internal_only = false) {
     return $result;
 }
 
+function blf_get_post_id_from_url($url) {
+    // Parsear la URL
+    $parsed_url = parse_url($url);
+    if (!isset($parsed_url['path'])) {
+        return null;
+    }
+
+    // Obtener el slug del path de la URL
+    $path = trim($parsed_url['path'], '/');
+    $slug = basename($path);
+
+    // Buscar el post por el slug
+    $post = get_page_by_path($slug, OBJECT, 'post');
+
+    return $post ? $post->ID : null;
+}
 
 function blf_is_internal_link($url) {
     // Parseamos la URL principal del sitio
@@ -230,6 +277,7 @@ function blf_is_internal_link($url) {
 
     return $is_internal;
 }
+
 function blf_is_broken_link($url) {
     if (empty($url)) {
         error_log("URL vacía proporcionada.");
@@ -252,6 +300,7 @@ function blf_is_broken_link($url) {
     // Podrías agregar más códigos de estado si es necesario
     return in_array($status, array(404, 410));
 }
+
 
 // Enqueue scripts para la página de opciones
 function blf_enqueue_scripts($hook) {
