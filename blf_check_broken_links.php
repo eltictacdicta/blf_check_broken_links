@@ -255,6 +255,11 @@ function blf_is_broken_link($url) {
 
 // Enqueue scripts para la página de opciones
 function blf_enqueue_scripts($hook) {
+    // Verificar si estamos en el admin panel
+    if (!is_admin()) {
+        return;
+    }
+  
     if ($hook != 'settings_page_blf-options') {
         return;
     }
