@@ -10,7 +10,25 @@ Author: Misterdigital
 if (!defined('ABSPATH')) {
     exit;
 }
+// Definir la ruta completa al archivo de log dentro de la carpeta /logs del plugin
+$log_dir = plugin_dir_path(__FILE__) . 'logs';
 
+if (!file_exists($log_dir)) {
+    mkdir($log_dir, 0755, true);
+}
+
+$log_file = $log_dir . '/error_log.txt';
+
+// Crear el archivo de log si no existe
+if (!file_exists($log_file)) {
+    $handle = fopen($log_file, 'w') or die('No se pudo crear el archivo de log: ' . $log_file);
+    fclose($handle);
+}
+
+define('BLF_LOG_FILE_PATH', $log_file);
+
+// Intentar escribir un mensaje de prueba
+error_log("Esto es un mensaje de prueba.", 3, BLF_LOG_FILE_PATH);
 
 // Agregar la página de opciones del plugin
 function blf_add_options_page() {
@@ -69,22 +87,27 @@ function blf_render_options_page() {
 }
 
 function blf_clean_specific_post() {
+    
     check_ajax_referer('blf-nonce', 'nonce');
-
-    if (!isset($_POST['post_id']) || !intval($_POST['post_id'])) {
-        wp_send_json_error('ID de post inválido');
+    $post_id = $_POST['post_id'];
+    if (is_numeric($post_id)) {
+        $post_id = intval($post_id);  // Tratar como int
+    } else {
+        $post_id = filter_var($post_id, FILTER_VALIDATE_URL) ? $post_id : null;  // Validar como URL
+        if (is_null($post_id)) {
+            wp_send_json_error('Invalid post_id');
+        }
     }
-
-    $post_id = intval($_POST['post_id']);
+    
     $internal_only = isset($_POST['internal_only']) && $_POST['internal_only'] === 'true';
     
     // Añadir log
-    error_log("Intentando limpiar el post ID: " . $post_id);
+    error_log("Intentando limpiar el post ID: " . $post_id, 3, BLF_LOG_FILE_PATH);
 
     $result = blf_check_broken_links($post_id, $internal_only);
     
     // Añadir más logs
-    error_log("Resultado de la limpieza: " . print_r($result, true));
+    error_log("Resultado de la limpieza: " . print_r($result, true), 3, BLF_LOG_FILE_PATH);
 
     wp_send_json_success($result);
 }
@@ -95,20 +118,44 @@ add_action('wp_ajax_blf_clean_specific_post', 'blf_clean_specific_post');
 function blf_start_cleaning() {
     check_ajax_referer('blf-nonce', 'nonce');
 
-    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : null;
+    // Validar entrada
+    if (!isset($_POST['post_id'])) {
+        wp_send_json_error('post_id is required');
+    }
+
+    $post_id = $_POST['post_id'];
+
+    if (is_numeric($post_id)) {
+        $post_id = intval($post_id);  // Tratar como int
+    } else {
+        $post_id = filter_var($post_id, FILTER_VALIDATE_URL) ? $post_id : null;  // Validar como URL
+        if (is_null($post_id)) {
+            wp_send_json_error('Invalid post_id');
+        }
+    }
+
+    // Validar internal_only input
     $internal_only = isset($_POST['internal_only']) && $_POST['internal_only'] === 'true';
+
+    // Llamar a la función de limpieza y manejar errores posibles
     $result = blf_check_broken_links($post_id, $internal_only);
+    
+    if (is_wp_error($result)) {
+        wp_send_json_error($result->get_error_message());
+    }
 
     wp_send_json_success($result);
 }
 add_action('wp_ajax_blf_start_cleaning', 'blf_start_cleaning');
 
+
 function blf_check_broken_links($post_identifier = null, $internal_only = false) {
+    
     // Verificar si $post_identifier es una URL o un post ID
     if ($post_identifier && !is_numeric($post_identifier)) {
         $post_id = blf_get_post_id_from_url($post_identifier);
         if (!$post_id) {
-            error_log("No se encontró un post con la URL proporcionada: " . $post_identifier);
+            error_log("No se encontró un post con la URL proporcionada: " . $post_identifier, 3, BLF_LOG_FILE_PATH);
             return null;
         }
     } else {
@@ -130,7 +177,7 @@ function blf_check_broken_links($post_identifier = null, $internal_only = false)
 
     $posts = get_posts($args);
 
-    error_log("Número de posts encontrados: " . count($posts));
+    error_log("Número de posts encontrados: " . count($posts), 3, BLF_LOG_FILE_PATH);
 
     $cleaned_count = 0;
     $link_count = 0;
@@ -143,17 +190,17 @@ function blf_check_broken_links($post_identifier = null, $internal_only = false)
 
     foreach ($posts as $post) {
         $content = $post->post_content;
-        error_log("Procesando post ID: " . $post->ID);
+        error_log("Procesando post ID: " . $post->ID, 3, BLF_LOG_FILE_PATH);
 
         // Patrón para capturar enlaces en HTML
         $pattern = '/<a\s+href=["\']([^"\']+)["\']/i';
         if (preg_match_all($pattern, $content, $matches)) {
             $links = $matches[1]; // Array con todos los href encontrados
             $num_links = count($links);
-            error_log("Número de enlaces encontrados en post ID " . $post->ID . ": " . $num_links);
+            error_log("Número de enlaces encontrados en post ID " . $post->ID . ": " . $num_links, 3, BLF_LOG_FILE_PATH);
             $link_count += $num_links;
         } else {
-            error_log("No se encontraron enlaces en el post ID " . $post->ID . ".");
+            error_log("No se encontraron enlaces en el post ID " . $post->ID . ".", 3, BLF_LOG_FILE_PATH);
             continue;
         }
 
@@ -163,12 +210,12 @@ function blf_check_broken_links($post_identifier = null, $internal_only = false)
             error_log("Verificando enlace: " . $href);
 
             if (empty($href)) {
-                error_log("Enlace vacío encontrado y omitido.");
+                error_log("Enlace vacío encontrado y omitido.", 3, BLF_LOG_FILE_PATH);
                 continue;
             }
 
             if (!filter_var($href, FILTER_VALIDATE_URL)) {
-                error_log("Enlace no válido detectado: " . $href);
+                error_log("Enlace no válido detectado: " . $href, 3, BLF_LOG_FILE_PATH);
                 continue;
             }
 
@@ -179,13 +226,13 @@ function blf_check_broken_links($post_identifier = null, $internal_only = false)
             }
 
             if ($internal_only && !blf_is_internal_link($href)) {
-                error_log("Enlace externo omitido: " . $href);
+                error_log("Enlace externo omitido: " . $href, 3, BLF_LOG_FILE_PATH);
                 continue;
             }
 
             if (blf_is_broken_link($href)) {
                 $broken_link_count++;
-                error_log("Enlace roto detectado: " . $href);
+                error_log("Enlace roto detectado: " . $href, 3, BLF_LOG_FILE_PATH);
 
                 // Patrón para encontrar la etiqueta <a> completa
                 $link_pattern = '/<a\s+href=["\']' . preg_quote($href, '/') . '["\'].*?>(.*?)<\/a>/i';
@@ -198,10 +245,10 @@ function blf_check_broken_links($post_identifier = null, $internal_only = false)
                     $last_cleaned_url = $href;
                     $content_changed = true;
 
-                    error_log("Enlace roto encontrado y limpiado: " . $href);
+                    error_log("Enlace roto encontrado y limpiado: " . $href, 3, BLF_LOG_FILE_PATH);
                 }
             } else {
-                error_log("El enlace no está roto: " . $href);
+                error_log("El enlace no está roto: " . $href, 3, BLF_LOG_FILE_PATH);
             }
         }
 
@@ -210,7 +257,7 @@ function blf_check_broken_links($post_identifier = null, $internal_only = false)
                 'ID' => $post->ID,
                 'post_content' => $content,
             ));
-            error_log("Contenido actualizado para post ID: " . $post->ID);
+            error_log("Contenido actualizado para post ID: " . $post->ID, 3, BLF_LOG_FILE_PATH);
         }
 
         if (!$post_id) {
@@ -233,6 +280,7 @@ function blf_check_broken_links($post_identifier = null, $internal_only = false)
 }
 
 function blf_get_post_id_from_url($url) {
+    
     // Parsear la URL
     $parsed_url = parse_url($url);
     if (!isset($parsed_url['path'])) {
@@ -243,25 +291,38 @@ function blf_get_post_id_from_url($url) {
     $path = trim($parsed_url['path'], '/');
     $slug = basename($path);
 
+    error_log("URL: $url", 3, BLF_LOG_FILE_PATH);
+    error_log("Parsed URL: " . print_r($parsed_url, true), 3, BLF_LOG_FILE_PATH);
+    error_log("Path: $path", 3, BLF_LOG_FILE_PATH);
+    error_log("Slug: $slug", 3, BLF_LOG_FILE_PATH);
+
     // Buscar el post por el slug
     $post = get_page_by_path($slug, OBJECT, 'post');
+
+    if (!$post) {
+        error_log("No post found with slug: $slug", 3, BLF_LOG_FILE_PATH);
+    } else {
+        error_log("Found post ID: " . $post->ID, 3, BLF_LOG_FILE_PATH);
+    }
 
     return $post ? $post->ID : null;
 }
 
+
 function blf_is_internal_link($url) {
+    
     // Parseamos la URL principal del sitio
     $home_url = parse_url(home_url());
     $parsed_url = parse_url($url);
 
     // Asegurarse de que el parsed_url tenga un host
     if (!isset($parsed_url['host'])) {
-        error_log("Internal link detected (relative URL): " . $url);
+        error_log("Internal link detected (relative URL): " . $url, 3, BLF_LOG_FILE_PATH);
         return true;
     }
 
     // Log para comparar valores
-    error_log("Comparing home_url host: " . $home_url['host'] . " with URL host: " . $parsed_url['host']);
+    error_log("Comparing home_url host: " . $home_url['host'] . " with URL host: " . $parsed_url['host'], 3, BLF_LOG_FILE_PATH);
 
     $home_host = strtolower($home_url['host']);
     $parsed_host = strtolower($parsed_url['host']);
@@ -270,9 +331,9 @@ function blf_is_internal_link($url) {
     $is_internal = $home_host === $parsed_host;
 
     if ($is_internal) {
-        error_log("Internal link confirmed: " . $url);
+        error_log("Internal link confirmed: " . $url, 3, BLF_LOG_FILE_PATH);
     } else {
-        error_log("External link detected: " . $url);
+        error_log("External link detected: " . $url, 3, BLF_LOG_FILE_PATH);
     }
 
     return $is_internal;
@@ -280,7 +341,7 @@ function blf_is_internal_link($url) {
 
 function blf_is_broken_link($url) {
     if (empty($url)) {
-        error_log("URL vacía proporcionada.");
+        error_log("URL vacía proporcionada.", 3, BLF_LOG_FILE_PATH);
         return true; // Considerar vacío como roto
     }
 
@@ -289,7 +350,7 @@ function blf_is_broken_link($url) {
     // Incrementar el timeout a 10 segundos para dar más tiempo
     $response = wp_remote_head($url, array('timeout' => 10));
     if (is_wp_error($response)) {
-        error_log("Error al verificar enlace: " . $response->get_error_message());
+        error_log("Error al verificar enlace: " . $response->get_error_message(), 3, BLF_LOG_FILE_PATH);
         return true;
     }
 
