@@ -103,6 +103,7 @@ $('#blf-clean-specific-post').on('click', function() {
     }
 
     var postIds = inputValue.split(/\n/); // Separar por nueva línea
+    console.log(postIds);
     var internalOnly = $('#blf-internal-only').is(':checked');
     
     $('#blf-specific-post-status').html('Limpiando posts...');
