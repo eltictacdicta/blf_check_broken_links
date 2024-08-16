@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Broken Link Fixer
-Description: Busca y elimina enlaces rotos dentro de los posts.
+Description: Busca y elimina enlaces rotos dentro de los posts .
 Version: 1.0
 Author: Misterdigital
 */
