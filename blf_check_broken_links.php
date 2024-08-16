@@ -5,6 +5,7 @@ Description: Busca y elimina enlaces rotos dentro de los posts .
 Version: 1.1
 Author: Misterdigital
 GitHub Plugin URI:https://github.com/eltictacdicta/blf_check_broken_links
+Primary Branch: main
 */
 
 // Evitar acceso directo
