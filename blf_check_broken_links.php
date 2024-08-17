@@ -82,6 +82,7 @@ function blf_clean_specific_post() {
     
     check_ajax_referer('blf-nonce', 'nonce');
     $post_id = stripslashes($_POST['post_id']);
+    wp_send_json_error('post_id:'.$post_id);
     if (intval($post_id)>0) {
         $post_id = intval($post_id);  // Tratar como int
     } else {
