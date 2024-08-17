@@ -102,7 +102,7 @@ function blf_clean_specific_post() {
     
     // Añadir más logs
     error_log("Resultado de la limpieza: " . print_r($result, true). "\n", 3, BLF_LOG_FILE_PATH);
-    wp_send_json_error('Result:'.$result[0]);
+    wp_send_json_error('Result:'. json_encode($result));
     wp_send_json_success($result);
 }
 
