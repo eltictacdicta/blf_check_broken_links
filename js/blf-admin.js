@@ -23,8 +23,8 @@ jQuery(document).ready(function($) {
                 if (response.success) {
                     var posts = response.data.posts;
                     var internalOnly = response.data.internal_only;
-                    var postIds = posts.map(post => post.ID);
-                    cleanSpecificPosts(postIds, internalOnly);
+                    //var postIds = posts.map(post => post.ID);
+                    cleanSpecificPosts(posts, internalOnly);
                 } else {
                     cleaningInProgress = false;
                     $('#blf-status').html('Error durante la limpieza: ' + response.data);
