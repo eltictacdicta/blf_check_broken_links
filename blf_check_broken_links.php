@@ -82,7 +82,7 @@ function blf_clean_specific_post() {
     
     check_ajax_referer('blf-nonce', 'nonce');
     $post_id = $_POST['post_id'];
-    if (is_numeric($post_id)) {
+    if (intval($post_id)>0) {
         $post_id = intval($post_id);  // Tratar como int
     } else {
         $post_id = filter_var($post_id, FILTER_VALIDATE_URL) ? $post_id : null;  // Validar como URL
