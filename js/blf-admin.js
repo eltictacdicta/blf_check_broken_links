@@ -121,29 +121,33 @@ jQuery(document).ready(function($) {
                 },
                 success: function(response) {
                     console.log("response:" + JSON.stringify(response));
+                    // Eliminar cualquier carácter adicional antes o después del JSON
+                    var responseString = JSON.stringify(response);
+                    var cleanedResponseString = responseString.trim();
                     try {
-                        // Eliminar cualquier carácter adicional antes o después del JSON
-                        var responseString = JSON.stringify(response);
-                        var cleanedResponseString = responseString.trim();
                         var result = JSON.parse(cleanedResponseString);
-                        console.log("result:" + JSON.stringify(result));
-                        if (!result) {
+                        console.log("result:", result); // Depuración para ver la estructura del objeto result
+
+                        if (!result || typeof result !== 'object') {
                             $('#blf-specific-post-status').append('<p>Formato de respuesta no válido para el post ' + postIdValue + '.</p>');
                             return;
                         }
-                        var statusMessage = 'Post ID/URL: ' + result.post_id + '<br>';
-                        statusMessage += 'Enlaces totales: ' + result.link_count + '<br>';
-                        statusMessage += 'Enlaces rotos: ' + result.broken_link_count + '<br>';
-                        statusMessage += 'Enlaces limpiados: ' + result.cleaned_count + '<br>';
+
+                        var statusMessage = 'Post ID/URL: ' + (result.post_id || 'undefined') + '<br>';
+                        statusMessage += 'Enlaces totales: ' + (result.link_count || 'undefined') + '<br>';
+                        statusMessage += 'Enlaces rotos: ' + (result.broken_link_count || 'undefined') + '<br>';
+                        statusMessage += 'Enlaces limpiados: ' + (result.cleaned_count || 'undefined') + '<br>';
                         if (result.last_cleaned_url) {
                             statusMessage += 'Última URL limpiada: ' + result.last_cleaned_url + '<br>';
                         }
                         // Add new fields to status message
-                        statusMessage += 'Enlaces internos: ' + result.internal_links_count + '<br>';
-                        statusMessage += 'Enlaces externos: ' + result.external_links_count + '<br>';
-                        $('#blf-specific-post-status').append('<p>' + statusMessage + '</p>');
+                        statusMessage += 'Enlaces internos: ' + (result.internal_links_count || 'undefined') + '<br>';
+                        statusMessage += 'Enlaces externos: ' + (result.external_links_count || 'undefined') + '<br>';
+
+                        $('#blf-specific-post-status').append(statusMessage);
                     } catch (e) {
-                        $('#blf-specific-post-status').append('<p>Error al parsear la respuesta del servidor para el post ' + postIdValue + ': ' + e.message + '</p>');
+                        console.error("Error parsing JSON:", e);
+                        $('#blf-specific-post-status').append('<p>Error al parsear la respuesta JSON para el post ' + postIdValue + '.</p>');
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
