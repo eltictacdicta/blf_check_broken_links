@@ -90,7 +90,7 @@ function blf_clean_specific_post() {
             wp_send_json_error('Invalid post_id:'.$post_id);
         }
     }*/
-    wp_send_json_error('Post id:'.intval($post_id));
+    wp_send_json_error('Post id:'.$post_id);
     $post_id=null;
     $internal_only = isset($_POST['internal_only']) && $_POST['internal_only'] === 'true';
     
