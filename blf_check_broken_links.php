@@ -127,8 +127,13 @@ function blf_start_cleaning() {
         wp_send_json_error('No posts found');
     }
 
-    // Enviar los posts al frontend
-    wp_send_json_success(array('posts' => $posts, 'internal_only' => $internal_only));
+    // Extraer los IDs de los posts
+    $post_ids = array_map(function($post) {
+        return $post->ID;
+    }, $posts);
+
+    // Enviar los IDs de los posts al frontend
+    wp_send_json_success(array('post_ids' => $post_ids, 'internal_only' => $internal_only));
 }
 add_action('wp_ajax_blf_start_cleaning', 'blf_start_cleaning');
 
