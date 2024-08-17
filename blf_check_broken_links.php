@@ -81,16 +81,16 @@ function blf_render_options_page() {
 function blf_clean_specific_post() {
     
     check_ajax_referer('blf-nonce', 'nonce');
-    $post_id = $_POST['post_id'];
-    /*if (intval($post_id)>0) {
+    $post_id = stripslashes($_POST['post_id']);
+    if (intval($post_id)>0) {
         $post_id = intval($post_id);  // Tratar como int
     } else {
         $post_id = filter_var($post_id, FILTER_VALIDATE_URL) ? $post_id : null;  // Validar como URL
         if (is_null($post_id)) {
             wp_send_json_error('Invalid post_id:'.$post_id);
         }
-    }*/
-    wp_send_json_error('Post id:'.$post_id);
+    }
+    //wp_send_json_error('Post id:'.$post_id);
     $post_id=null;
     $internal_only = isset($_POST['internal_only']) && $_POST['internal_only'] === 'true';
     
