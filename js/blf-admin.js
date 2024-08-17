@@ -21,20 +21,10 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    var result = response.data;
-                    var statusMessage = 'Limpieza completada exitosamente.<br>';
-                    statusMessage += 'Enlaces totales: ' + result.link_count + '<br>';
-                    statusMessage += 'Enlaces rotos: ' + result.broken_link_count + '<br>';
-                    statusMessage += 'Enlaces limpiados: ' + result.cleaned_count + '<br>';
-                    if (result.last_cleaned_url) {
-                        statusMessage += 'Última URL limpiada: ' + result.last_cleaned_url + '<br>';
-                    }
-                    statusMessage += 'Enlaces internos: ' + result.internal_links_count + '<br>';
-                    statusMessage += 'Enlaces externos: ' + result.external_links_count + '<br>';
-                    $('#blf-status').html(statusMessage);
-                    cleaningInProgress = false;
-                    $('#blf-start-cleaning').show();
-                    $('#blf-cancel-cleaning').hide();
+                    var posts = response.data.posts;
+                    var internalOnly = response.data.internal_only;
+                    var postIds = posts.map(post => post.ID);
+                    cleanSpecificPosts(postIds, internalOnly);
                 } else {
                     cleaningInProgress = false;
                     $('#blf-status').html('Error durante la limpieza: ' + response.data);
@@ -52,6 +42,7 @@ jQuery(document).ready(function($) {
     }
 
     $('#blf-start-cleaning').on('click', startCleaning);
+
 
     $('#blf-cancel-cleaning').on('click', function() {
         if (!cleaningInProgress) {
@@ -79,17 +70,8 @@ jQuery(document).ready(function($) {
         });
     });
 
-    // Manejador para limpiar posts específicos
-    $('#blf-clean-specific-post').on('click', function() {
-        var inputValue = $('#blf-post-input').val();
-        if (!inputValue) {
-            $('#blf-specific-post-status').html('Por favor, ingrese uno o más IDs o URLs de post válidos.');
-            return;
-        }
-
-        var postIds = inputValue.split(/\n/); // Separar por nueva línea
-        var internalOnly = $('#blf-internal-only').is(':checked');
-
+    // Función para limpiar posts específicos
+    function cleanSpecificPosts(postIds, internalOnly) {
         $('#blf-specific-post-status').html('Limpiando posts...');
         var urlPattern = /^(http|https):\/\/[^\s/$.?#].[^\s]*$/i;
 
@@ -121,11 +103,11 @@ jQuery(document).ready(function($) {
                 },
                 success: function(response) {
                     console.log("response:" + JSON.stringify(response));
-                // Eliminar cualquier carácter adicional antes o después del JSON
-                var responseString = JSON.stringify(response);
-                var cleanedResponseString = responseString.trim();
-                try {
-                    var result = JSON.parse(cleanedResponseString);
+                    // Eliminar cualquier carácter adicional antes o después del JSON
+                    var responseString = JSON.stringify(response);
+                    var cleanedResponseString = responseString.trim();
+                    try {
+                        var result = JSON.parse(cleanedResponseString);
                     console.log("result:", result); // Depuración para ver la estructura del objeto result
 
                     if (!result || typeof result !== 'object') {
@@ -156,5 +138,19 @@ jQuery(document).ready(function($) {
                 }
             });
         });
+    }
+
+    // Manejador para limpiar posts específicos
+    $('#blf-clean-specific-post').on('click', function() {
+        var inputValue = $('#blf-post-input').val();
+        if (!inputValue) {
+            $('#blf-specific-post-status').html('Por favor, ingrese uno o más IDs o URLs de post válidos.');
+            return;
+        }
+
+        var postIds = inputValue.split(/\n/); // Separar por nueva línea
+        var internalOnly = $('#blf-internal-only').is(':checked');
+
+        cleanSpecificPosts(postIds, internalOnly);
     });
 });

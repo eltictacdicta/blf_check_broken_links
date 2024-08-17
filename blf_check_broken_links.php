@@ -127,21 +127,11 @@ function blf_start_cleaning() {
         wp_send_json_error('No posts found');
     }
 
-    $results = array();
-
-    foreach ($posts as $post) {
-        // Llamar a la función de limpieza y manejar errores posibles
-        $result = blf_check_broken_links($post->ID, $internal_only);
-        
-        if (is_wp_error($result)) {
-            wp_send_json_error($result->get_error_message());
-        }
-    
-        wp_send_json_success($result);
-    }
-
+    // Enviar los posts al frontend
+    wp_send_json_success(array('posts' => $posts, 'internal_only' => $internal_only));
 }
 add_action('wp_ajax_blf_start_cleaning', 'blf_start_cleaning');
+
 
 
 
