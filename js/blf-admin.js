@@ -121,34 +121,35 @@ jQuery(document).ready(function($) {
                 },
                 success: function(response) {
                     console.log("response:" + JSON.stringify(response));
-                    // Eliminar cualquier carácter adicional antes o después del JSON
-                    var responseString = JSON.stringify(response);
-                    var cleanedResponseString = responseString.trim();
-                    try {
-                        var result = JSON.parse(cleanedResponseString);
-                        console.log("result:", result); // Depuración para ver la estructura del objeto result
+                // Eliminar cualquier carácter adicional antes o después del JSON
+                var responseString = JSON.stringify(response);
+                var cleanedResponseString = responseString.trim();
+                try {
+                    var result = JSON.parse(cleanedResponseString);
+                    console.log("result:", result); // Depuración para ver la estructura del objeto result
 
-                        if (!result || typeof result !== 'object') {
-                            $('#blf-specific-post-status').append('<p>Formato de respuesta no válido para el post ' + postIdValue + '.</p>');
-                            return;
-                        }
-
-                        var statusMessage = 'Post ID/URL: ' + (result.data.post_id || 'undefined') + '<br>';
-                        statusMessage += 'Enlaces totales: ' + (result.data.link_count || 'undefined') + '<br>';
-                        statusMessage += 'Enlaces rotos: ' + (result.data.broken_link_count || 'undefined') + '<br>';
-                        statusMessage += 'Enlaces limpiados: ' + (result.data.cleaned_count || 'undefined') + '<br>';
-                        if (result.last_cleaned_url) {
-                            statusMessage += 'Última URL limpiada: ' + result.data.last_cleaned_url + '<br>';
-                        }
-                        // Add new fields to status message
-                        statusMessage += 'Enlaces internos: ' + (result.data.internal_links_count || 'undefined') + '<br>';
-                        statusMessage += 'Enlaces externos: ' + (result.data.external_links_count || 'undefined') + '<br>';
-
-                        $('#blf-specific-post-status').append(statusMessage);
-                    } catch (e) {
-                        console.error("Error parsing JSON:", e);
-                        $('#blf-specific-post-status').append('<p>Error al parsear la respuesta JSON para el post ' + postIdValue + '.</p>');
+                    if (!result || typeof result !== 'object') {
+                        $('#blf-specific-post-status').append('<p>Formato de respuesta no válido para el post ' + postIdValue + '.</p>');
+                        return;
                     }
+
+                    var statusMessage = 'Post ID/URL: ' + (result.data.post_id || 'undefined') + '<br>';
+                    statusMessage += 'Enlaces totales: ' + (result.data.link_count || 'undefined') + '<br>';
+                    statusMessage += 'Enlaces rotos: ' + (result.data.broken_link_count || 'undefined') + '<br>';
+                    statusMessage += 'Enlaces limpiados: ' + (result.data.cleaned_count || 'undefined') + '<br>';
+                    if (result.data.last_cleaned_url) {
+                        statusMessage += 'Última URL limpiada: ' + result.data.last_cleaned_url + '<br>';
+                    }
+                    // Add new fields to status message
+                    statusMessage += 'Enlaces internos: ' + (result.data.internal_links_count || 'undefined') + '<br>';
+                    statusMessage += 'Enlaces externos: ' + (result.data.external_links_count || 'undefined') + '<br>';
+
+                    $('#blf-specific-post-status').append(statusMessage);
+                } catch (e) {
+                    console.error("Error parsing JSON:", e);
+                    $('#blf-specific-post-status').append('<p>Error al parsear la respuesta JSON para el post ' + postIdValue + '.</p>');
+                }
+
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     $('#blf-specific-post-status').append('<p>Error durante la limpieza del post ' + postIdValue + ': ' + textStatus + ' - ' + errorThrown + '</p>');
