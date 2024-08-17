@@ -142,10 +142,10 @@ add_action('wp_ajax_blf_start_cleaning', 'blf_start_cleaning');
 
 
 function blf_check_broken_links($post_identifier = null, $internal_only = false) {
-    
+    logToConsole('1 La entrada de ID o URL es inválida: ', $post_identifier);
     // Verificar si $post_identifier es una URL o un post ID
     if ($post_identifier && !is_numeric($post_identifier)) {
-        logToConsole('La entrada de ID o URL es inválida: ', $post_identifier);
+        logToConsole('2 La entrada de ID o URL es inválida: ', $post_identifier);
         $post_id = blf_get_post_id_from_url($post_identifier);
 
         if (!$post_id) {
