@@ -116,6 +116,9 @@ jQuery(document).ready(function($) {
                     post_id: JSON.stringify(postIdValue), // Asegúrate de que postIdValue esté entre comillas
                     internal_only: internalOnly
                 },
+                beforeSend: function(xhr) {
+                    console.log('data'+this.data); // Imprime el valor de data en la consola antes de enviar la solicitud
+                },
                 success: function(response) {
                     console.log("response:"+response); // <-- Añadir esta línea para ver la respuesta completa.
                     try {
