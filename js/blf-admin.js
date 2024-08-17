@@ -133,7 +133,7 @@ jQuery(document).ready(function($) {
                         return;
                     }
 
-                    var statusMessage = 'Post ID/URL: ' + result.data.post_id  + '<br>';
+                    var statusMessage = 'Post URL: ' + result.data.post_url  + '<br>';
                     statusMessage += 'Enlaces totales: ' + result.data.link_count  + '<br>';
                     statusMessage += 'Enlaces rotos: ' + result.data.broken_link_count + '<br>';
                     statusMessage += 'Enlaces limpiados: ' + result.data.cleaned_count + '<br>';
