@@ -116,7 +116,7 @@ function blf_start_cleaning() {
         wp_send_json_error('post_id is required');
     }
 
-    $post_id = $_POST['post_id'];
+    $post_id = stripslashes($_POST['post_id']);
 
     if (intval($post_id)>0) {
         $post_id = intval($post_id);  // Tratar como int
