@@ -122,11 +122,11 @@ jQuery(document).ready(function($) {
                 success: function(response) {
                     console.log("response:" + JSON.stringify(response));
                     try {
-                        var result = JSON.parse(response);
+                        /*var result = JSON.parse(response);
                         if (!result) {
                             $('#blf-specific-post-status').append('<p>Formato de respuesta no válido para el post ' + postIdValue + '.</p>');
                             return;
-                        }
+                        }*/
                         var statusMessage = 'Post ID/URL: ' + result.post_id + '<br>';
                         statusMessage += 'Enlaces totales: ' + result.link_count + '<br>';
                         statusMessage += 'Enlaces rotos: ' + result.broken_link_count + '<br>';
