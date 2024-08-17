@@ -117,7 +117,7 @@ jQuery(document).ready(function($) {
                     internal_only: internalOnly
                 },
                 beforeSend: function(xhr) {
-                    console.log('data'+this.data); // Imprime el valor de data en la consola antes de enviar la solicitud
+                    console.log('data:', JSON.stringify(this.data, null, 2)); // Imprime el valor de data como JSON en la consola antes de enviar la solicitud
                 },
                 success: function(response) {
                     console.log("response:"+response); // <-- Añadir esta línea para ver la respuesta completa.
