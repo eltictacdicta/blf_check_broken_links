@@ -117,7 +117,7 @@ $(document).ready(function() {
                     internal_only: internalOnly
                 },
                 success: function(response) {
-                    console.log(response); // <-- Añadir esta línea para ver la respuesta completa.
+                    console.log("response:"+response); // <-- Añadir esta línea para ver la respuesta completa.
                     try {
                         var result = JSON.parse(response);
                         if (!result) {
