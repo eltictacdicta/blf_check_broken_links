@@ -112,35 +112,37 @@ add_action('wp_ajax_blf_clean_specific_post', 'blf_clean_specific_post');
 function blf_start_cleaning() {
     check_ajax_referer('blf-nonce', 'nonce');
 
-    // Validar entrada
-    if (!isset($_POST['post_id'])) {
-        wp_send_json_error('post_id is required');
-    }
-
-    $post_id = stripslashes($_POST['post_id']);
-
-    if (intval($post_id)>0) {
-        $post_id = intval($post_id);  // Tratar como int
-    } else {
-        $post_id = filter_var($post_id, FILTER_VALIDATE_URL) ? $post_id : null;  // Validar como URL
-        if (is_null($post_id)) {
-            wp_send_json_error('Invalid post_id');
-        }
-    }
-
     // Validar internal_only input
     $internal_only = isset($_POST['internal_only']) && $_POST['internal_only'] === 'true';
 
-    // Llamar a la función de limpieza y manejar errores posibles
-    $result = blf_check_broken_links($post_id, $internal_only);
-    
-    if (is_wp_error($result)) {
-        wp_send_json_error($result->get_error_message());
+    // Obtener todos los posts
+    $args = array(
+        'post_type' => 'post',
+        'posts_per_page' => -1,
+        'post_status' => 'publish',
+    );
+    $posts = get_posts($args);
+
+    if (empty($posts)) {
+        wp_send_json_error('No posts found');
     }
 
-    wp_send_json_success($result);
+    $results = array();
+
+    foreach ($posts as $post) {
+        // Llamar a la función de limpieza y manejar errores posibles
+        $result = blf_check_broken_links($post->ID, $internal_only);
+        
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+        }
+    
+        wp_send_json_success($result);
+    }
+
 }
 add_action('wp_ajax_blf_start_cleaning', 'blf_start_cleaning');
+
 
 
 function blf_check_broken_links($post_identifier = null, $internal_only = false) {
