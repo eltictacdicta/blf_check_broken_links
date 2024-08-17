@@ -113,7 +113,7 @@ jQuery(document).ready(function($) {
                 data: {
                     action: 'blf_clean_specific_post',
                     nonce: blf_ajax.nonce,
-                    post_id: postIdValue,
+                    post_id: JSON.stringify(postIdValue), // Asegúrate de que postIdValue esté entre comillas
                     internal_only: internalOnly
                 },
                 success: function(response) {
