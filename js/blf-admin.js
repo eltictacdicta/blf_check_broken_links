@@ -1,4 +1,4 @@
-$(document).ready(function() {
+jQuery(document).ready(function($) {
     var cleaningInProgress = false;
 
     function startCleaning() {
