@@ -133,16 +133,16 @@ jQuery(document).ready(function($) {
                             return;
                         }
 
-                        var statusMessage = 'Post ID/URL: ' + (result.post_id || 'undefined') + '<br>';
-                        statusMessage += 'Enlaces totales: ' + (result.link_count || 'undefined') + '<br>';
-                        statusMessage += 'Enlaces rotos: ' + (result.broken_link_count || 'undefined') + '<br>';
-                        statusMessage += 'Enlaces limpiados: ' + (result.cleaned_count || 'undefined') + '<br>';
+                        var statusMessage = 'Post ID/URL: ' + (result.data.post_id || 'undefined') + '<br>';
+                        statusMessage += 'Enlaces totales: ' + (result.data.link_count || 'undefined') + '<br>';
+                        statusMessage += 'Enlaces rotos: ' + (result.data.broken_link_count || 'undefined') + '<br>';
+                        statusMessage += 'Enlaces limpiados: ' + (result.data.cleaned_count || 'undefined') + '<br>';
                         if (result.last_cleaned_url) {
-                            statusMessage += 'Última URL limpiada: ' + result.last_cleaned_url + '<br>';
+                            statusMessage += 'Última URL limpiada: ' + result.data.last_cleaned_url + '<br>';
                         }
                         // Add new fields to status message
-                        statusMessage += 'Enlaces internos: ' + (result.internal_links_count || 'undefined') + '<br>';
-                        statusMessage += 'Enlaces externos: ' + (result.external_links_count || 'undefined') + '<br>';
+                        statusMessage += 'Enlaces internos: ' + (result.data.internal_links_count || 'undefined') + '<br>';
+                        statusMessage += 'Enlaces externos: ' + (result.data.external_links_count || 'undefined') + '<br>';
 
                         $('#blf-specific-post-status').append(statusMessage);
                     } catch (e) {
