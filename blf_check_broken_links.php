@@ -28,7 +28,7 @@ if (!file_exists($log_file)) {
 define('BLF_LOG_FILE_PATH', $log_file);
 
 // Intentar escribir un mensaje de prueba
-error_log("Esto es un mensaje de prueba.", 3, BLF_LOG_FILE_PATH);
+error_log("Esto es un mensaje de prueba.\n", 3, BLF_LOG_FILE_PATH);
 
 // Agregar la página de opciones del plugin
 function blf_add_options_page() {
