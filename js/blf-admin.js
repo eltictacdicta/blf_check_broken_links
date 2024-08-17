@@ -74,7 +74,7 @@ jQuery(document).ready(function($) {
     function cleanSpecificPosts(postIds, internalOnly) {
         $('#blf-specific-post-status').html('Limpiando posts...');
         var urlPattern = /^(http|https):\/\/[^\s/$.?#].[^\s]*$/i;
-
+        console.log('cleanSpecificPosts', JSON.stringify(postIds, null, 2));
         postIds.forEach(function(postId) {
             if (!postId.trim()) {
                 return;
