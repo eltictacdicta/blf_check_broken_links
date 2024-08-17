@@ -368,7 +368,7 @@ function blf_enqueue_scripts($hook) {
         return;
     }
 
-    wp_enqueue_script('blf-admin', plugin_dir_url(__FILE__) . 'js/blf-admin.js', array('jquery'), null, true);
+    wp_enqueue_script('blf-admin', plugin_dir_url(__FILE__) . 'js/blf-admin.js?v=' . time(), array('jquery'), null, true);
     wp_localize_script('blf-admin', 'blf_ajax', array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('blf-nonce')
