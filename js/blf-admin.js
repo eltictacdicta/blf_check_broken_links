@@ -24,7 +24,7 @@ jQuery(document).ready(function($) {
                 internal_only: internalOnly
             },
             success: function(response) {
-                console.log(response); // <-- Añadir esta línea para ver la respuesta completa.
+                console.log("respuesta:"+response); // <-- Añadir esta línea para ver la respuesta completa.
                 if (response.success) {
                     var result = response.data;
                     // Asegura que 'result' esté definido antes de usarlo.
