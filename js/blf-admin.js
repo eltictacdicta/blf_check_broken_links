@@ -144,7 +144,7 @@ jQuery(document).ready(function($) {
                     statusMessage += 'Enlaces internos: ' + result.data.internal_links_count  + '<br>';
                     statusMessage += 'Enlaces externos: ' + result.data.external_links_count  + '<br>';
 
-                    $('#blf-specific-post-status').append(statusMessage);
+                    $('#blf-specific-post-status').empty().append(statusMessage);
                 } catch (e) {
                     console.error("Error parsing JSON:", e);
                     $('#blf-specific-post-status').append('<p>Error al parsear la respuesta JSON para el post ' + postIdValue + '.</p>');

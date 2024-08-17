@@ -261,9 +261,9 @@ function blf_check_broken_links($post_identifier = null, $internal_only = false)
             $next_post_id = $post->ID + 1;
         }
     }
-
+    
     $result = array(
-        'post_id' => $post_id ? $post_id : (isset($post) ? $post->ID : null),
+        'post_url' => $post_id ? get_permalink($post_id) : (isset($post) ? get_permalink($post->ID) : null),
         'link_count' => $link_count,
         'broken_link_count' => $broken_link_count,
         'cleaned_count' => $cleaned_count,
