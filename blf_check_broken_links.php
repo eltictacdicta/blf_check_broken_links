@@ -42,6 +42,17 @@ function blf_add_options_page() {
 }
 add_action('admin_menu', 'blf_add_options_page');
 
+function logToConsole($nombre,$variable) {
+    echo "
+    <script>
+        // Pasar el valor de PHP a JavaScript
+        var postIdentifier = " . $variable . ";
+        var nombre = " . $nombre  . ";
+        // Hacer el console.log en JavaScript
+        console.log(nombre': '+postIdentifier);
+    </script>
+    ";
+}
 
 // Editar la función para renderizar la página de opciones del plugin
 function blf_render_options_page() {
@@ -134,7 +145,9 @@ function blf_check_broken_links($post_identifier = null, $internal_only = false)
     
     // Verificar si $post_identifier es una URL o un post ID
     if ($post_identifier && !is_numeric($post_identifier)) {
+        logToConsole('La entrada de ID o URL es inválida: ', $post_identifier);
         $post_id = blf_get_post_id_from_url($post_identifier);
+
         if (!$post_id) {
             error_log("No se encontró un post con la URL proporcionada: " . $post_identifier, 3, BLF_LOG_FILE_PATH);
             return null;
