@@ -123,8 +123,9 @@ jQuery(document).ready(function($) {
                     console.log("response:" + JSON.stringify(response));
                     try {
                         // Eliminar cualquier carácter adicional antes o después del JSON
-                        var cleanedResponse = response.trim();
-                        var result = JSON.parse(cleanedResponse);
+                        var responseString = JSON.stringify(response);
+                        var cleanedResponseString = responseString.trim();
+                        var result = JSON.parse(cleanedResponseString);
                         console.log("result:" + JSON.stringify(result));
                         if (!result) {
                             $('#blf-specific-post-status').append('<p>Formato de respuesta no válido para el post ' + postIdValue + '.</p>');
