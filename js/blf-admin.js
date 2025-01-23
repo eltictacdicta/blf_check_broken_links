@@ -7,21 +7,17 @@ jQuery(document).ready(function($) {
         }
 
         cleaningInProgress = true;
-        $('#blf-status').html('Iniciando limpieza...');
         $('#blf-start-cleaning').hide();
         $('#blf-cancel-cleaning').show();
+        $('#blf-status').html('Iniciando limpieza...');
 
-        var internalOnly = $('#blf-internal-only').is(':checked');
-
-        // Enviar solicitud AJAX para iniciar la limpieza
         $.ajax({
             url: blf_ajax.ajax_url,
             type: 'POST',
             dataType: 'json',
             data: {
                 action: 'blf_start_cleaning',
-                nonce: blf_ajax.nonce,
-                internal_only: internalOnly
+                nonce: blf_ajax.nonce
             },
             success: function(response) {
                 console.log(response); // <-- Añadir esta línea para ver la respuesta completa.
@@ -67,6 +63,7 @@ jQuery(document).ready(function($) {
 
     $('#blf-start-cleaning').on('click', startCleaning);
 
+
     $('#blf-cancel-cleaning').on('click', function() {
         if (!cleaningInProgress) {
             return;
@@ -77,7 +74,6 @@ jQuery(document).ready(function($) {
         $('#blf-cancel-cleaning').hide();
         $('#blf-status').html('Limpieza cancelada.');
 
-        // Enviar solicitud AJAX para cancelar la limpieza
         $.ajax({
             url: blf_ajax.ajax_url,
             type: 'POST',
@@ -94,36 +90,16 @@ jQuery(document).ready(function($) {
         });
     });
 
-// Manejador para limpiar posts específicos
-$('#blf-clean-specific-post').on('click', function() {
-    var inputValue = $('#blf-post-input').val();
-    if (!inputValue) {
-        $('#blf-specific-post-status').html('Por favor, ingrese uno o más IDs o URLs de post válidos.');
-        return;
-    }
+    $('#blf-clean-specific-post').on('click', function() {
+        var postId = $('#blf-post-input').val();
+        if (!postId) {
+            $('#blf-specific-post-status').html('Por favor, ingrese un ID de post válido.');
+            return;
+        }
+        
+        var internalOnly = $('#blf-internal-only').is(':checked');
 
-    var postIds = inputValue.split(/\n/); // Separar por nueva línea
-    var internalOnly = $('#blf-internal-only').is(':checked');
-    
-    $('#blf-specific-post-status').html('Limpiando posts...');
-
-    // Definir patrones de validación
-    var urlPattern = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+(\/.*)?$/;
-    var idPattern = /^[0-9]+$/;
-
-    // Verificar todos los postIds
-    var validPostIds = postIds.filter(function(postId) {
-        postId = postId.trim();
-        return urlPattern.test(postId) || idPattern.test(postId);
-    });
-
-    if (validPostIds.length === 0) {
-        $('#blf-specific-post-status').html('Ingrese uno o más IDs o URLs de post válidos.');
-        return;
-    }
-
-    validPostIds.forEach(function(postId) {
-        postId = postId.trim();
+        $('#blf-specific-post-status').html('Limpiando post...');
 
         $.ajax({
             url: blf_ajax.ajax_url,
@@ -136,14 +112,9 @@ $('#blf-clean-specific-post').on('click', function() {
                 internal_only: internalOnly
             },
             success: function(response) {
-                console.log(response); // <-- Añadir esta línea para ver la respuesta completa.
                 if (response.success) {
                     var result = response.data;
-                    if (!result) {
-                        $('#blf-specific-post-status').append('<p>Formato de respuesta no válido para el post ' + postId + '.</p>');
-                        return;
-                    }
-                    var statusMessage = 'Post ID/URL: ' + result.post_id + '<br>';
+                    var statusMessage = 'Post ID: ' + result.post_id + '<br>';
                     statusMessage += 'Enlaces totales: ' + result.link_count + '<br>';
                     statusMessage += 'Enlaces rotos: ' + result.broken_link_count + '<br>';
                     statusMessage += 'Enlaces limpiados: ' + result.cleaned_count + '<br>';
@@ -153,15 +124,14 @@ $('#blf-clean-specific-post').on('click', function() {
                     // Add new fields to status message
                     statusMessage += 'Enlaces internos: ' + result.internal_links_count + '<br>';
                     statusMessage += 'Enlaces externos: ' + result.external_links_count + '<br>';
-                    $('#blf-specific-post-status').append('<p>' + statusMessage + '</p>');
+                    $('#blf-specific-post-status').html(statusMessage);
                 } else {
-                    $('#blf-specific-post-status').append('<p>Error durante la limpieza del post ' + postId + ': ' + response.data + '</p>');
+                    $('#blf-specific-post-status').html('Error durante la limpieza: ' + response.data);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                $('#blf-specific-post-status').append('<p>Error durante la limpieza del post ' + postId + ': ' + textStatus + ' - ' + errorThrown + '</p>');
+                $('#blf-specific-post-status').html('Error durante la limpieza: ' + textStatus + ' - ' + errorThrown);
             }
         });
     });
-});
 });
