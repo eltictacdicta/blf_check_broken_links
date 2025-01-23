@@ -52,36 +52,17 @@ function blf_render_options_page() {
         <label>
             <input type="checkbox" id="blf-internal-only" checked> Solo enlaces internos
         </label>
-        
+        <div id="blf-specific-post-status"></div>
         <h2>Limpieza masiva</h2>
         <button id="blf-start-cleaning" class="button button-primary">Iniciar Limpieza</button>
         <button id="blf-cancel-cleaning" class="button" style="display:none;">Cancelar Limpieza</button>
         <div id="blf-status"></div>
 
         <h2>Limpiar post específico</h2>
-        <select id="blf-type-selector">
-            <option value="url">URL del post</option>
-            <option value="id">ID del post</option>
-            
-        </select>
-        <input type="url" id="blf-post-input" placeholder="URL del post">
+        <textarea id="blf-post-input" placeholder="URLs o IDs del post" cols="100" rows="100"></textarea>
+
+
         <button id="blf-clean-specific-post" class="button">Limpiar Post</button>
-        <div id="blf-specific-post-status"></div>
-
-        <script>
-            const typeSelector = document.getElementById('blf-type-selector');
-            const postInput = document.getElementById('blf-post-input');
-
-            typeSelector.addEventListener('change', function() {
-                if (typeSelector.value === 'id') {
-                    postInput.type = 'number';
-                    postInput.placeholder = 'ID del post';
-                } else {
-                    postInput.type = 'url';
-                    postInput.placeholder = 'URL del post';
-                }
-            });
-        </script>
     </div>
     <?php
 }
